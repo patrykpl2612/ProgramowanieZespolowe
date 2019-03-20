@@ -2,7 +2,7 @@ CREATE TABLE Zjazdy
 (
     Id INT PRIMARY KEY,
     Data DATE
-)
+);
 
 CREATE TABLE Pracownicy
 (
