@@ -2,7 +2,7 @@
 ProgramowanieZespolowe
 
 
-https://serwer1866993.home.pl/sql/
+https://serwer1866993.home.pl/psql/
 
-28568274_programowaniezespolowe
+28568274_postgres
 
