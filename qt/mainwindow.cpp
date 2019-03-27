@@ -27,8 +27,8 @@ void MainWindow::on_pushButton_clicked()
     ui->statusBar->showMessage(query, 2000);
 
     QSqlQuery zapytanie;
-    zapytanie.first();
-    QString wynik = zapytanie.value(0).toString();
+    zapytanie.first(); //nie dzila nikt nie wie dlaczego
+    QString wynik = zapytanie.value(0).toString(); //to tez
     qDebug() << wynik;
     //QMessageBox::information(this, "", "Wynik zapytania: \n" + wynik);
 
