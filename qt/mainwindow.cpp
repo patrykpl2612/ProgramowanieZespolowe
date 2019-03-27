@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    db.close();
     delete ui;
 }
 
