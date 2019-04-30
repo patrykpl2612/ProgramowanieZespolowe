@@ -68,6 +68,7 @@ void MainWindow::on_pushButton_3_clicked()
             layout->addWidget(przyciski[licznik]);
             licznik++;
         }
+       QObject::connect(przyciski[0],SIGNAL (clicked()),this,SLOT(ustaw_przyciski()));
 
         zapytanie.exec("SELECT data FROM zjazdy");
         licznik=0;
@@ -93,3 +94,10 @@ void MainWindow::on_pushButton_2_clicked()
     qDebug() << "Closed";
 }
 
+void MainWindow::ustaw_przyciski()
+{
+    //przyciski[0]->setText("dzien dobry");
+    QColor color(255,0,0);
+    QString qss = QString("background-color: %1").arg(color.name());
+    przyciski[0]->setStyleSheet(qss);
+}
