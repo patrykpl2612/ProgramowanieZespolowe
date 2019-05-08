@@ -58,8 +58,8 @@ void MainWindow::on_pushButton_3_clicked()
         ui->scrollAreaWidgetContents->setLayout(layout);
         ui->scrollArea->setWidgetResizable(true);
 
-        QButtonGroup grupa_przyciskow;
-        grupa_przyciskow.setExclusive(true);
+        //QButtonGroup grupa_przyciskow;
+        //grupa_przyciskow.setExclusive(true);
 
         zapytanie.exec("SELECT id_pracownika FROM przydzial_zajec");
         int licznik=0;
@@ -75,7 +75,8 @@ void MainWindow::on_pushButton_3_clicked()
             layout->addWidget(przyciski[licznik]);
             QObject::connect(przyciski[licznik],SIGNAL (clicked()),this,SLOT(ustaw_przyciski()));
             przyciski[licznik]->setCheckable(true);
-            grupa_przyciskow.addButton(przyciski[licznik]);
+            przyciski[licznik]->setAutoExclusive(true);
+            //grupa_przyciskow.addButton(przyciski[licznik]);
             licznik++;
         }
 
@@ -106,23 +107,21 @@ void MainWindow::on_pushButton_2_clicked()
 
 void MainWindow::ustaw_przyciski()
 {
-
-    QColor color(255,0,0);
-    QString qss = QString("background-color: %1").arg(color.name());
     QPushButton* button = qobject_cast<QPushButton*>(sender());
 
     if( button != nullptr )
     {
-       //if(button->isChecked())button->setChecked(false);
-       /* else {
-            for(int i=0; i<4;i++){
-                przyciski[i]->setChecked(false);
-            }
-            button->setChecked(true);
-        }*/
-        //  button->setStyleSheet(qss);
-        
-    }
 
+
+        for(int i=0; i<4;i++){
+            przyciski[i]->setChecked(false);
+        }
+
+        if (button->isChecked()) {
+            button->setAutoExclusive(false);
+        } else {
+            button->setAutoExclusive(true);
+        }
+    }
 
 }
