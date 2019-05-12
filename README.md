@@ -1,4 +1,4 @@
-# ProgramowanieZespolowe
+# ProgramowanieZespolowe, wersja aktualna - Qt v6.0
 ProgramowanieZespolowe
 
 
