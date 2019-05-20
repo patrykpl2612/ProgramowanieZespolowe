@@ -1,0 +1,80 @@
+CREATE DATABASE "plan_NSI"
+
+CREATE TABLE Zjazdy
+(
+    Id INT PRIMARY KEY,
+    Data DATE
+);
+
+CREATE TABLE Pracownicy
+(
+    Id INT PRIMARY KEY,
+    Imie CHAR(20),
+    Nazwisko CHAR(50),
+    Stopien CHAR(20),
+    Stanowisko CHAR(20) NOT NULL
+);
+
+CREATE TABLE Dezyderaty
+(
+    Id_Pracownika INT PRIMARY KEY REFERENCES Pracownicy(Id),
+    Dzien INT REFERENCES Zjazdy(Id),
+    Adnotacja TEXT
+);
+
+
+CREATE TABLE Grupy
+(
+    Id INT PRIMARY KEY,
+    Rok_Studiow SMALLINT,
+    Nazwa CHAR(10)
+);
+
+
+CREATE TABLE Programy_Studiow
+(
+    Id INT PRIMARY KEY,
+    Rok_Studiow SMALLINT,
+    Nazwa_Przedmiotu CHAR(50),
+    Liczba_Godzin INT,
+    Typ_zajec CHAR(10)
+);
+
+CREATE TABLE Przydzial_Zajec
+(
+    Id INT PRIMARY KEY,
+    Id_Pracownika INT REFERENCES Pracownicy(Id),
+    Id_Przedmiotu INT REFERENCES Programy_Studiow(Id),
+    Grupa INT REFERENCES Grupy(Id)
+);
+
+CREATE TABLE Plan_Zajec
+(
+    Id INT PRIMARY KEY,
+    Dzien INT REFERENCES Zjazdy(Id),
+    Id_Przydzialu INT REFERENCES Przydzial_zajec(Id),
+    Od_godzina INT,
+    Do_godzina INT,
+    Sala CHAR(20)
+); 
+
+
+CREATE SEQUENCE id_pracownicy
+    INCREMENT 1
+    START 1;
+
+CREATE SEQUENCE id_programy_studiow
+    INCREMENT 1
+    START 1;
+
+CREATE SEQUENCE id_grupy
+    INCREMENT 1
+    START 1;
+
+
+
+ALTER TABLE programy_studiow
+ALTER COLUMN id SET DEFAULT nextval('id_programy_studiow');
+
+
+insert into programy_studiow(rok_studiow,nazwa_przedmiotu,liczba_godzin,typ_zajec) values(1,'Budowa komputera',8,'l');
