@@ -3,4 +3,4 @@
 3. Naprawiona funkcja zmienaiajaca w bazie
 4. Ustawienie przydzialow w tabelce
 5. Lekkie uporzadkowanie kodu
-6. Vector przetrzymujacy zeczywiste id przycisku i tabeli
+6. Vector przetrzymujacy rzeczywiste id przycisku i tabeli
