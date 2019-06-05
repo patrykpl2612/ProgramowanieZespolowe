@@ -15,6 +15,7 @@
 #include "qmessagebox.h"
 #include "qdebug.h"
 #include "qsqlerror.h"
+#include "qprogressbar.h"
 
 
 

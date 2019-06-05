@@ -164,7 +164,6 @@ void MainWindow::utworz_przycisk_przydzialu(int id, QString etykieta)
 
     przyciski_przydzialow->button(id)->setStyleSheet(qss);
     przyciski_przydzialow->button(id)->show();
-    przyciski_przydzialow->button(id)->setText("Kinga Pieninska to GEJ");
 
 }
 
@@ -178,7 +177,7 @@ void MainWindow::ustaw_przyciski(int id, bool stan)
     if(stan)
     {
         // to wyłączamy wszystkie pozostałe
-        for(int i=1; i<=liczba_przydzialow; i++)
+        for(int i=1; i<=liczba_przydzialow+1; i++)
             if(i != id) przyciski_przydzialow->button(i)->setChecked(false);
 
         // kontrolnie wyświetlamy id przydziału
@@ -259,7 +258,7 @@ void MainWindow::add_to_table(int row, int column)
             item->setText(text);
 
             QSqlQuery zapytanie;
-            zapytanie.exec("");
+            zapytanie.exec("UPDATE plan_zajec SET id_przydzialu="+ QString::number(przyciski_przydzialow->checkedId()) +" WHERE dzien="+ QString::number(item->column()) +" AND od_godzina="+ QString::number(item->row()+godzina_poczatkowa) +" AND id_grupy="+ QString::number(ui->tabWidget->currentIndex()));
 
 
         }
@@ -373,18 +372,34 @@ void MainWindow::on_actionClear_database_triggered()
 void MainWindow::clearDatabase()
 {
     QMessageBox::warning(this, "Warning", "Do you really want to clear database?");
-    QSqlQuery clear, ilosc_grup, ilosc_zjazdow, utworz_rekord;
+    QSqlQuery clear, ilosc_grup_zapytanie, ilosc_zjazdow_zapytanie, utworz_rekord;
     clear.exec("DELETE FROM plan_zajec");
-    ilosc_grup.exec("SELECT COUNT(*) FROM grupy");
-    ilosc_zjazdow.exec("SELECT COUNT(*) FROM zjazdy");
+    ilosc_grup_zapytanie.exec("SELECT COUNT(*) FROM grupy");
+    ilosc_grup_zapytanie.next();
+    //qDebug()<<"Ilosc grup: "<<ilosc_grup.value(0).toInt();
+    ilosc_zjazdow_zapytanie.exec("SELECT COUNT(*) FROM zjazdy");
+    ilosc_zjazdow_zapytanie.next();
+    //qDebug()<<"Ilosc zjazdow: "<<ilosc_zjazdow.value(0).toInt();
+    QWidget * widget = new QWidget;
+    QHBoxLayout * layout = new QHBoxLayout;
+    QProgressBar * progressBar = new QProgressBar;
+    widget->setLayout(layout);
+    layout->addWidget(progressBar);
+    //widget->show();
 
-    for(int i=0; i<ilosc_grup.value(0).toInt(); i++)
+    int ilosc_grup = ilosc_grup_zapytanie.value(0).toInt();
+    int ilosc_zjazdow = ilosc_zjazdow_zapytanie.value(0).toInt();
+
+    int progressBarValue = ilosc_grup * ilosc_zjazdow * (godzina_koncowa-godzina_poczatkowa);
+
+    for(int i=0; i<ilosc_grup; i++)
     {
-        for(int j=0; j<ilosc_zjazdow.value(0).toInt(); j++)
+        for(int j=0; j<ilosc_zjazdow; j++)
         {
             for(int k=0; k<godzina_koncowa-godzina_poczatkowa; k++)
             {
-                utworz_rekord.exec("INSERT INTO plan_zajec VALUES(1, " + QString::number(j) + ", NULL, " + QString::number(k) + ", " + QString::number(k+1) + ", NULL)");
+                utworz_rekord.exec("INSERT INTO plan_zajec (dzien, id_przydzialu, od_godzina, do_godzina, sala, id_grupy) VALUES(" + QString::number(j) + ", NULL, " + QString::number(k+godzina_poczatkowa) + ", " + QString::number(k+1+godzina_poczatkowa) + ", NULL," + QString::number(id_grupy[i]) +")");
+                //progressBar->setValue(progressBarValue);
             }
         }
     }
