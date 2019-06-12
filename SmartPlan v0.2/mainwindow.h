@@ -48,6 +48,8 @@ private slots:
 
     void on_actionClear_database_triggered();
 
+    void on_tabWidget_tabBarClicked(int index);
+
 private:
     Ui::MainWindow *ui;
 
@@ -65,7 +67,9 @@ private:
     // dla każdego utworzonego przycisku,
     // tzn. id_przydzialu[i] zawiera id przydziału połączonego z i-tym przyciskiem
     QVector<int> id_przydzialu;
+    QVector<int> id_grupy_dla_przydzialu;
     QVector<int> id_grupy;
+    QVector<int> id_dnia;
     QVector<QTableWidget*> tabelki;
 
 

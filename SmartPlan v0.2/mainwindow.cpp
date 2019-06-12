@@ -73,11 +73,12 @@ void MainWindow::on_pushButton_3_clicked()
 
     QSqlQuery zapytanie,zapytanie_2,zapytanie_3;
 
-    zapytanie.exec("SELECT id_pracownika,id_przedmiotu, id FROM przydzial_zajec");
+    zapytanie.exec("SELECT id_pracownika,id_przedmiotu, id, grupa FROM przydzial_zajec");
     int licznik=0;
     // numerację przydziałów zaczniemy od 1,
     // więc na miejscu 0 wstawiamy dowolny element np. -1
     id_przydzialu.append(-1);
+    id_grupy_dla_przydzialu.append(-1);
     while(zapytanie.next())
     {
         QString pracownik=zapytanie.value(0).toString();
@@ -90,6 +91,7 @@ void MainWindow::on_pushButton_3_clicked()
         zapytanie_3.next();
         QString etykieta = QString(zapytanie_2.value(0).toString() + "\n" + zapytanie_2.value(1).toString()+"\n"+zapytanie_3.value(0).toString());
         int id = zapytanie.value(2).toInt();
+        int grupa = zapytanie.value(3).toInt();
         // tworzymy nowy przycisk dla danego przydziału
         utworz_przycisk_przydzialu(id, etykieta);
 
@@ -97,7 +99,10 @@ void MainWindow::on_pushButton_3_clicked()
 
         // i dodajemy go do naszej tablicy na miejscu o numerze ,,licznik''
         id_przydzialu.append(id);
-        qDebug()<<id;
+        id_grupy_dla_przydzialu.append(grupa);
+
+        qDebug()<<id_przydzialu;
+        qDebug()<<id_grupy_dla_przydzialu;
         //wczytaj_plan_zajec(licznik);
         licznik++;
     }
@@ -110,7 +115,7 @@ void MainWindow::on_pushButton_3_clicked()
     liczba_przydzialow = licznik - 1;
 
 
-    qDebug()<<przyciski_przydzialow->button(1)->palette().background().color();
+    //qDebug()<<przyciski_przydzialow->button(1)->palette().background().color();
     utworz_tabelki();
 
 
@@ -258,7 +263,11 @@ void MainWindow::add_to_table(int row, int column)
             item->setText(text);
 
             QSqlQuery zapytanie;
-            zapytanie.exec("UPDATE plan_zajec SET id_przydzialu="+ QString::number(przyciski_przydzialow->checkedId()) +" WHERE dzien="+ QString::number(item->column()) +" AND od_godzina="+ QString::number(item->row()+godzina_poczatkowa) +" AND id_grupy="+ QString::number(ui->tabWidget->currentIndex()));
+            qDebug()<<"Przydzial: "<<przyciski_przydzialow->checkedId();
+            qDebug()<<"Dzien: "<<id_dnia[item->column()];
+            qDebug()<<"Godzina: "<<item->row()+godzina_poczatkowa;
+            qDebug()<<"Id grypy: "<<id_grupy[ui->tabWidget->currentIndex()];
+            zapytanie.exec("UPDATE plan_zajec SET id_przydzialu="+ QString::number(przyciski_przydzialow->checkedId()) +" WHERE dzien="+ QString::number(id_dnia[item->column()]) +" AND od_godzina="+ QString::number(item->row()+godzina_poczatkowa) +" AND id_grupy="+ QString::number(id_grupy[ui->tabWidget->currentIndex()]));
 
 
         }
@@ -336,13 +345,14 @@ int MainWindow::utworz_tabelki(){
         int ile_zjazdow = 0;
 
 
-        zapytanie.exec("SELECT data FROM zjazdy");
+        zapytanie.exec("SELECT data, id FROM zjazdy");
 
         QStringList daty;
         while(zapytanie.next())
         {
             ile_zjazdow++;
             daty.append(zapytanie.value(0).toString());
+            id_dnia.push_back(zapytanie.value(1).toInt());
         }
         table->setColumnCount(ile_zjazdow);
         table->setHorizontalHeaderLabels(daty);
@@ -390,7 +400,7 @@ void MainWindow::clearDatabase()
     int ilosc_grup = ilosc_grup_zapytanie.value(0).toInt();
     int ilosc_zjazdow = ilosc_zjazdow_zapytanie.value(0).toInt();
 
-    int progressBarValue = ilosc_grup * ilosc_zjazdow * (godzina_koncowa-godzina_poczatkowa);
+    //int progressBarValue = ilosc_grup * ilosc_zjazdow * (godzina_koncowa-godzina_poczatkowa);
 
     for(int i=0; i<ilosc_grup; i++)
     {
@@ -404,4 +414,15 @@ void MainWindow::clearDatabase()
         }
     }
 
+}
+
+void MainWindow::on_tabWidget_tabBarClicked(int index)
+{
+    for (int i = 1; i < id_przydzialu.size(); i++)
+    {
+        //qDebug()<<id_przydzialu[i];
+        //qDebug()<<id_grupy_dla_przydzialu[i];
+        if(id_grupy[index] == id_grupy_dla_przydzialu[i]) przyciski_przydzialow->button(i)->show();
+        else przyciski_przydzialow->button(i)->hide();
+    }
 }
