@@ -15,3 +15,6 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
+
+
+https://www.mat.umk.pl/group/wmii/programowanie-zespolowe
