@@ -221,6 +221,7 @@ bool MainWindow::polacz_z_baza_danych()
 
 void MainWindow::usun_komorke(const QPoint & pos)
 {
+    QSqlQuery zapytanie;
 
     QTableWidget* table = qobject_cast<QTableWidget*>(sender());
     if( table == nullptr )
@@ -233,7 +234,12 @@ void MainWindow::usun_komorke(const QPoint & pos)
         return;
     }
 
+    zapytanie.exec("UPDATE plan_zajec SET id_przydzialu=NULL, sala=null WHERE dzien="+ QString::number(id_dnia[item2->column()]) +" AND od_godzina="+ QString::number(item2->row()+godzina_poczatkowa) +" AND id_grupy="+ QString::number(id_grupy[ui->tabWidget->currentIndex()]));
+
     table->setItem(item2->row(), item2->column(), nullptr);
+
+
+
 }
 
 void MainWindow::add_to_table(int row, int column)
