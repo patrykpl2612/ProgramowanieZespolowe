@@ -1,6 +1,0 @@
-delete from plan_zajec;
-insert into plan_zajec(dzien, id_grupy, od_godzina)
-select dzien, grupa,od_godzina from 
-(select id as grupa from grupy ) as aa,
-(select id as dzien from  zjazdy) as bb,
-(select generate_series(8,19) as od_godzina) as cc
