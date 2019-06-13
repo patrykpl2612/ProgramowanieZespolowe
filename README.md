@@ -1,8 +1,4 @@
-# ProgramowanieZespolowe, wersja aktualna - smartPlan v0.3
-
-ProgramowanieZespolowe
-
-
+# ProgramowanieZespolowe, wersja aktualna - SmartPlan v0.3
 
 https://serwer1866993.home.pl/psql/
 
