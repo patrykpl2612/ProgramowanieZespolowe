@@ -10,6 +10,12 @@
     <height>571</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -23,27 +29,12 @@
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QPushButton" name="pushButton_3">
-            <property name="text">
-             <string>Połącz z bazą</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_2">
-            <property name="text">
-             <string>Rozłącz z bazą</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <layout class="QHBoxLayout" name="horizontalLayout"/>
         </item>
         <item>
          <widget class="QScrollArea" name="scrollArea">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -66,7 +57,7 @@
              <x>0</x>
              <y>0</y>
              <width>882</width>
-             <height>461</height>
+             <height>482</height>
             </rect>
            </property>
           </widget>
@@ -76,7 +67,7 @@
       </widget>
       <widget class="QTabWidget" name="tabWidget">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -112,9 +103,13 @@
    </property>
    <widget class="QMenu" name="menuOpcje">
     <property name="title">
-     <string>Opcje</string>
+     <string>Options</string>
     </property>
+    <addaction name="actionConnect_to_database"/>
+    <addaction name="actionRefresh_database"/>
     <addaction name="actionClear_database"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
    </widget>
    <addaction name="menuOpcje"/>
   </widget>
@@ -130,6 +125,21 @@
   <action name="actionClear_database">
    <property name="text">
     <string>Clear database</string>
+   </property>
+  </action>
+  <action name="actionConnect_to_database">
+   <property name="text">
+    <string>Connect to database</string>
+   </property>
+  </action>
+  <action name="actionRefresh_database">
+   <property name="text">
+    <string>Reload database</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close program</string>
    </property>
   </action>
  </widget>

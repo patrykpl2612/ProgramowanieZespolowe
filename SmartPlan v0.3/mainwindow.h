@@ -19,6 +19,7 @@
 #include "qsqlerror.h"
 #include "qprogressbar.h"
 #include "qtimer.h"
+#include "qthread.h"
 
 
 
@@ -37,22 +38,22 @@ public:
 
 private slots:
 
-    void on_pushButton_3_clicked();
-
-    void on_pushButton_2_clicked();
-
     void ustaw_przyciski(int , bool);
 
     void usun_komorke(const QPoint&);
 
-    void add_to_table(int, int);
+    void add_to_table(int, int);void on_actionClear_database_triggered();
 
     void wczytaj_plan_zajec(int);
 
-    void on_actionClear_database_triggered();
-
     void on_tabWidget_tabBarClicked(int index);
 
+
+    void on_actionConnect_to_database_triggered();
+
+    void on_actionRefresh_database_triggered();
+
+    void on_actionClose_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -85,6 +86,7 @@ private:
     void utworz_przycisk_przydzialu(int id, QString etykieta, int do_zaplanowania);
     void clearDatabase();
     void ustaw_daty_zjazdow();
+    bool sprawdz_polaczenie();
 
 };
 

@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->splitter->setChildrenCollapsible(false);
 
-
+    QMainWindow::showMaximized();
     // liczba elementow tabeli Przydzialy_zajec
     liczba_przydzialow = 0;
 
@@ -38,17 +38,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ///wylaczenie zaznaczenia
 
     ///wylaczenie scrollbara
-    ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 
-    ui->tabWidget->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
+    //ui->tabWidget->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
     ui->tabWidget->setMinimumSize(100,100);
-    ui->tabWidget->setMovable(true);
+    //ui->tabWidget->setMovable(true);
+    QList<int> list;
+    list.append(MainWindow::width()/7);
+    list.append((MainWindow::height()/7)*7);
+    ui->splitter->setSizes(list);
+
 
 
     ///automatyczne polaczenie z baza dla testow
 #ifdef PL_POLACZAUTOMATYCZNIE
-    on_pushButton_3_clicked();
+    on_actionConnect_to_database_triggered();
 #endif
 }
 
@@ -61,11 +66,14 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::on_pushButton_3_clicked()
+void MainWindow::on_actionConnect_to_database_triggered()
 {
     ///zabezpieczenie przed ponownym polaczeniem
     if(db.isOpen())
+    {
+        QMessageBox::information(this, "Połączenie z bazą", "Połączenie z bazą jest aktywne");
         return;
+    }
 
     if(!polacz_z_baza_danych())
         return;
@@ -122,18 +130,10 @@ void MainWindow::on_pushButton_3_clicked()
     MainWindow::on_tabWidget_tabBarClicked(0);
 }
 
-void MainWindow::on_pushButton_2_clicked()
-{
-    db.close();
-    qDebug() << "Closed";
-}
-
-
-
 
 void MainWindow::ustaw_parametry_pola_przydzialow()
 {
-    ui->scrollArea->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
+    //ui->scrollArea->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
     ui->scrollArea->setMinimumSize(100,100);
 
     ui->scrollAreaWidgetContents->setLayout(layout);
@@ -216,7 +216,7 @@ bool MainWindow::polacz_z_baza_danych()
 
     if (db.open())
     {
-        qDebug() << "Opened connection!";
+        //qDebug()<<"Connected!";
         return true;
     }
 
@@ -230,6 +230,8 @@ bool MainWindow::polacz_z_baza_danych()
 
 void MainWindow::usun_komorke(const QPoint & pos)
 {
+    sprawdz_polaczenie();
+
 
     QTableWidget* table = qobject_cast<QTableWidget*>(sender());
     if( table == nullptr )
@@ -261,6 +263,7 @@ void MainWindow::usun_komorke(const QPoint & pos)
 void MainWindow::add_to_table(int row, int column)
 {
 
+    if(sprawdz_polaczenie()) return;
 
     QTableWidget* table = qobject_cast<QTableWidget*>(sender());
     if( table == nullptr )
@@ -415,80 +418,147 @@ int MainWindow::utworz_tabelki(){
 
 void MainWindow::on_actionClear_database_triggered()
 {
-    clearDatabase();
+    if(sprawdz_polaczenie()) clearDatabase();
 }
 
 
 
 void MainWindow::clearDatabase()
 {
-    QMessageBox::warning(this, "Warning", "Do you really want to clear database?");
-    QSqlQuery clear, ilosc_grup_zapytanie, ilosc_zjazdow_zapytanie, utworz_rekord, ilosc_przydzialow, zaktualizuj_liczbe_godzin;
-    clear.exec("DELETE FROM plan_zajec");
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Czyszczenie planu lekcji", "Czy napewno wyczyścić plan lekcji? \n Wszystkie aktualne dane zostaną utracone.", QMessageBox::Yes|QMessageBox::No);
 
-    ilosc_przydzialow.exec("SELECT COUNT(*) FROM przydzial_zajec");
-    ilosc_przydzialow.next();
-    ilosc_grup_zapytanie.exec("SELECT COUNT(*) FROM grupy");
-    ilosc_grup_zapytanie.next();
-    //qDebug()<<"Ilosc grup: "<<ilosc_grup.value(0).toInt();
-    ilosc_zjazdow_zapytanie.exec("SELECT COUNT(*) FROM zjazdy");
-    ilosc_zjazdow_zapytanie.next();
-    //qDebug()<<"Ilosc zjazdow: "<<ilosc_zjazdow.value(0).toInt();
-    QWidget * widget = new QWidget;
-    QHBoxLayout * layout = new QHBoxLayout;
-    QProgressBar * progressBar = new QProgressBar;
-    widget->setLayout(layout);
-    layout->addWidget(progressBar);
-    //widget->show();
-
-    int ilosc_grup = ilosc_grup_zapytanie.value(0).toInt();
-    int ilosc_zjazdow = ilosc_zjazdow_zapytanie.value(0).toInt();
-    int ilosc_przydzialow_wartosc = ilosc_przydzialow.value(0).toInt();
-    int progressBarValue = ilosc_grup * ilosc_zjazdow * (godzina_koncowa-godzina_poczatkowa);
-
-    //qDebug()<<ilosc_przydzialow.value(0).toInt();
-    //qDebug()<<ilosc_przydzialow_wartosc;
-
-
-
-    for(int i=0; i<ilosc_przydzialow_wartosc; i++)
+    if(reply == QMessageBox::Yes)
     {
-        zaktualizuj_liczbe_godzin.exec("UPDATE przydzial_zajec SET do_zaplanowania = (SELECT liczba_godzin FROM programy_studiow WHERE id =( SELECT id_przedmiotu FROM przydzial_zajec WHERE id="+ QString::number(id_przydzialu[i]) +")) WHERE id="+QString::number(id_przydzialu[i]));
-        //qDebug()<<"UPDATE przydzial_zajec SET do_zaplanowania = (SELECT liczba_godzin FROM programy_studiow WHERE id =( SELECT id_przedmiotu FROM przydzial_zajec WHERE id="+ QString::number(id_przydzialu[i]) +")) WHERE id="+QString::number(id_przydzialu[i]);
-    }
+        QSqlQuery clear, ilosc_grup_zapytanie, ilosc_zjazdow_zapytanie, utworz_rekord, ilosc_przydzialow, zaktualizuj_liczbe_godzin, sortuj, ile;
 
-    for(int i=0; i<ilosc_grup; i++)
-    {
-        for(int j=0; j<=ilosc_zjazdow; j++)
+
+        /////////////sortuj.exec("SELECT * FROM zjazdy ORDER BY data"); co z tym?
+        /////////////sortuj.next();
+
+        ilosc_przydzialow.exec("SELECT COUNT(*) FROM przydzial_zajec");
+        ilosc_przydzialow.next();
+        ilosc_grup_zapytanie.exec("SELECT COUNT(*) FROM grupy");
+        ilosc_grup_zapytanie.next();
+        //qDebug()<<"Ilosc grup: "<<ilosc_grup.value(0).toInt();
+        ilosc_zjazdow_zapytanie.exec("SELECT COUNT(*) FROM zjazdy");
+        ilosc_zjazdow_zapytanie.next();
+        //qDebug()<<"Ilosc zjazdow: "<<ilosc_zjazdow.value(0).toInt();
+        ile.exec("SELECT COUNT(*) FROM plan_zajec WHERE id_przydzialu NOTNULL");
+        ile.next();
+
+        QString ile_wartosc = ile.value(0).toString();
+        int ilosc_grup = ilosc_grup_zapytanie.value(0).toInt();
+        int ilosc_zjazdow = ilosc_zjazdow_zapytanie.value(0).toInt();
+        int ilosc_przydzialow_wartosc = ilosc_przydzialow.value(0).toInt();
+        float progressBarValue = ilosc_grup * ilosc_zjazdow * (godzina_koncowa-godzina_poczatkowa);
+        float licznik=0;
+        float valueToUpdate=0;
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Czyszczenie planu lekcji", "Zostanie usunięte "+ ile_wartosc +" komórek. \n Kontynuować?" , QMessageBox::Yes|QMessageBox::No);
+
+        if(reply == QMessageBox::Yes)
         {
-            for(int k=0; k<godzina_koncowa-godzina_poczatkowa; k++)
+
+
+            QWidget * widget = new QWidget;
+            QVBoxLayout * layout = new QVBoxLayout;
+            QProgressBar * progressBar = new QProgressBar;
+            QLabel * label = new QLabel;
+            widget->setLayout(layout);
+            layout->addWidget(label);
+            layout->addWidget(progressBar);
+            progressBar->setMaximum(1000);
+            widget->resize(400,100);
+            label->setText("Czyszczenie planu lekcji, proszę czekać");
+            widget->setWindowTitle("Czyszcenie planu lekcji");
+            widget->show();
+
+
+
+            //qDebug()<<ilosc_przydzialow.value(0).toInt();
+            //qDebug()<<ilosc_przydzialow_wartosc;
+
+
+            clear.exec("DELETE FROM plan_zajec");
+
+            for(int i=0; i<ilosc_przydzialow_wartosc; i++)
             {
-                utworz_rekord.exec("INSERT INTO plan_zajec (dzien, id_przydzialu, od_godzina, do_godzina, sala, id_grupy) VALUES(" + QString::number(j) + ", NULL, " + QString::number(k+godzina_poczatkowa) + ", " + QString::number(k+1+godzina_poczatkowa) + ", NULL," + QString::number(id_grupy[i]) +")");
-                //progressBar->setValue(progressBarValue);
+                zaktualizuj_liczbe_godzin.exec("UPDATE przydzial_zajec SET do_zaplanowania = (SELECT liczba_godzin FROM programy_studiow WHERE id =( SELECT id_przedmiotu FROM przydzial_zajec WHERE id="+ QString::number(id_przydzialu[i]) +")) WHERE id="+QString::number(id_przydzialu[i]));
+                //qDebug()<<"UPDATE przydzial_zajec SET do_zaplanowania = (SELECT liczba_godzin FROM programy_studiow WHERE id =( SELECT id_przedmiotu FROM przydzial_zajec WHERE id="+ QString::number(id_przydzialu[i]) +")) WHERE id="+QString::number(id_przydzialu[i]);
             }
+
+            for(int i=0; i<ilosc_grup; i++)
+            {
+                for(int j=0; j<=ilosc_zjazdow; j++)
+                {
+                    for(int k=0; k<godzina_koncowa-godzina_poczatkowa; k++)
+                    {
+                        qApp->processEvents();
+                        utworz_rekord.exec("INSERT INTO plan_zajec (dzien, id_przydzialu, od_godzina, do_godzina, sala, id_grupy) VALUES(" + QString::number(j) + ", NULL, " + QString::number(k+godzina_poczatkowa) + ", " + QString::number(k+1+godzina_poczatkowa) + ", NULL," + QString::number(id_grupy[i]) +")");
+                        //progressBar->setValue(progressBarValue);
+                        licznik++;
+                        valueToUpdate = (licznik/progressBarValue)*1000;
+                        progressBar->setValue(static_cast<int>(valueToUpdate));
+                        progressBar->update();
+
+                    }
+                }
+            }
+
+            licznik=0;
+            widget->hide();
+            qApp->quit();
+            QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+
         }
     }
-
-    qApp->quit();
-    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
-
 }
 
 void MainWindow::on_tabWidget_tabBarClicked(int index)
 {
+
     if(przyciski_przydzialow->checkedButton())
     {
         QAbstractButton * button = przyciski_przydzialow->checkedButton();
         button->setChecked(false);
     }
-
+    qDebug()<<"Changed";
     for (int i = 1; i < id_przydzialu.size(); i++)
     {
-        //qDebug()<<id_grupy[index];
-        //qDebug()<<id_grupy_dla_przydzialu[i];
+        qDebug()<<id_grupy[index];
+        qDebug()<<id_grupy_dla_przydzialu[i];
+        qDebug()<<" ";
         if(id_grupy[index] == id_grupy_dla_przydzialu[i]) przyciski_przydzialow->button(id_przydzialu[i])->show();
         else przyciski_przydzialow->button(id_przydzialu[i])->hide();
     }
+}
+
+bool MainWindow::sprawdz_polaczenie()
+{
+    if(db.open()) return true;
+
+    else {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Błąd połączenia", "Połączenie z bazą zostało zerwane. \n Połączyć ponownie?" , QMessageBox::Yes|QMessageBox::No);
+
+        if(reply == QMessageBox::Yes)
+        {
+            polacz_z_baza_danych();
+        }
+        return false;
+    }
+}
 
 
+void MainWindow::on_actionRefresh_database_triggered()
+{
+    qApp->quit();
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+}
+
+void MainWindow::on_actionClose_triggered()
+{
+    qApp->quit();
 }
