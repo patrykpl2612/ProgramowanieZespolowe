@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     list.append(MainWindow::width()/7);
     list.append((MainWindow::height()/7)*7);
     ui->splitter->setSizes(list);
-
+    this->setWindowTitle("Smart plan");
 
 
     ///automatyczne polaczenie z baza dla testow
