@@ -1,0 +1,44 @@
+CREATE TABLE public.dezyderaty (
+    id_pracownika integer NOT NULL,
+    dzien integer,
+    adnotacja text
+);
+CREATE TABLE public.grupy (
+    id integer DEFAULT nextval('public.sekw_grupy'::regclass) NOT NULL,
+    rok_studiow smallint,
+    nazwa character(5)
+);
+CREATE TABLE public.plan_zajec (
+    id integer DEFAULT nextval('public.sekw_plan_zajec'::regclass) NOT NULL,
+    dzien integer,
+    id_przydzialu integer,
+    od_godzina integer,
+    do_godzina integer,
+    sala character(4),
+    id_grupy integer
+);
+CREATE TABLE public.pracownicy (
+    id integer DEFAULT nextval('public.sekw_pracownicy'::regclass) NOT NULL,
+    imie character(10),
+    nazwisko character(30),
+    stopien character(15),
+    "Stanowisko" character(20)
+);
+CREATE TABLE public.programy_studiow (
+    id integer DEFAULT nextval('public.sekw_programy_studiow'::regclass) NOT NULL,
+    rok_studiow smallint,
+    nazwa_przedmiotu text,
+    liczba_godzin integer,
+    typ_zajec character(10)
+);
+CREATE TABLE public.przydzial_zajec (
+    id integer DEFAULT nextval('public.sekw_przydzial_zajec'::regclass) NOT NULL,
+    id_pracownika integer,
+    id_przedmiotu integer,
+    grupa integer,
+    do_zaplanowania integer
+);
+CREATE TABLE public.zjazdy (
+    id integer DEFAULT nextval('public.sekw_zjazdy'::regclass) NOT NULL,
+    data date
+);
