@@ -1,1 +1,4 @@
 
+tu
+mamy
+przykladowego readme
