@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     list.append(MainWindow::width()/7);
     list.append((MainWindow::height()/7)*7);
     ui->splitter->setSizes(list);
+    this->setWindowTitle("Smart Plan");
 
 
 
@@ -110,8 +111,8 @@ void MainWindow::on_actionConnect_to_database_triggered()
         id_przydzialu.append(id);
         id_grupy_dla_przydzialu.append(grupa);
 
-        qDebug()<<id_przydzialu;
-        qDebug()<<id_grupy_dla_przydzialu;
+        //qDebug()<<id_przydzialu;
+        //qDebug()<<id_grupy_dla_przydzialu;
         //wczytaj_plan_zajec(licznik);
         licznik++;
     }
@@ -230,7 +231,7 @@ bool MainWindow::polacz_z_baza_danych()
 
 void MainWindow::usun_komorke(const QPoint & pos)
 {
-    if(!sprawdz_polaczenie()) return;
+    //if(!sprawdz_polaczenie()) return;
 
 
     QTableWidget* table = qobject_cast<QTableWidget*>(sender());
@@ -256,6 +257,7 @@ void MainWindow::usun_komorke(const QPoint & pos)
 
     zapytanie1.exec("UPDATE przydzial_zajec SET do_zaplanowania = do_zaplanowania + 1 WHERE id="+ QString::number(zapytanie.value(0).toInt()));
     zapytanie1.exec("UPDATE plan_zajec SET id_przydzialu=NULL, sala=NULL WHERE dzien="+ QString::number(id_dnia[item2->column()]) +" AND od_godzina="+ QString::number(item2->row()+godzina_poczatkowa) +" AND id_grupy="+ QString::number(id_grupy[ui->tabWidget->currentIndex()]));
+    qDebug()<<"UPDATE plan_zajec SET id_przydzialu=NULL, sala=NULL WHERE dzien="+ QString::number(id_dnia[item2->column()]) +" AND od_godzina="+ QString::number(item2->row()+godzina_poczatkowa) +" AND id_grupy="+ QString::number(id_grupy[ui->tabWidget->currentIndex()]);
 
     table->setItem(item2->row(), item2->column(), nullptr);
 }
@@ -263,7 +265,7 @@ void MainWindow::usun_komorke(const QPoint & pos)
 void MainWindow::add_to_table(int row, int column)
 {
 
-    if(!sprawdz_polaczenie()) return;
+    //if(!sprawdz_polaczenie()) return;
 
     QTableWidget* table = qobject_cast<QTableWidget*>(sender());
     if( table == nullptr )
@@ -271,8 +273,8 @@ void MainWindow::add_to_table(int row, int column)
         return;
     }
 
-    if(db.open())
-    {
+    //if(db.open())
+    //{
         QTableWidgetItem * item =  table->item(row,column);
         if(!item)
         {
@@ -296,20 +298,37 @@ void MainWindow::add_to_table(int row, int column)
 
             else
             {
-                QColor color = button->palette().background().color();
-                QString text = button->text();
-                item->setBackgroundColor(color);
-                item->setText(text);
+
+
                 QSqlQuery zapytanie;
-                zapytanie.exec("UPDATE plan_zajec SET id_przydzialu="+ QString::number(przyciski_przydzialow->checkedId()) +" WHERE dzien="+ QString::number(id_dnia[item->column()]) +" AND od_godzina="+ QString::number(item->row()+godzina_poczatkowa) +" AND id_grupy="+ QString::number(id_grupy[ui->tabWidget->currentIndex()]));
-                QList<QLabel*> etykieta = button->findChildren<QLabel*>();
-                QLabel * label = etykieta.last();
-                label->setText( QString::number(label->text().toInt()-1));
-                zapytanie.exec("UPDATE przydzial_zajec SET do_zaplanowania = do_zaplanowania - 1 WHERE id="+ QString::number(przyciski_przydzialow->checkedId()));
+
+
+                if (!zapytanie.exec("UPDATE plan_zajec SET id_przydzialu="+ QString::number(przyciski_przydzialow->checkedId()) +" WHERE dzien="+ QString::number(id_dnia[item->column()]) +" AND od_godzina="+ QString::number(item->row()+godzina_poczatkowa) +" AND id_grupy="+ QString::number(id_grupy[ui->tabWidget->currentIndex()])))
+                {
+                    //qDebug()<<"Sql error:" + zapytanie.lastError().text();
+                    //qDebug()<<"Sql error code: "+ QString::number(zapytanie.lastError().text().toInt());
+                    //QMessageBox::warning(this, "", "Sql error:" + zapytanie.lastError().text());
+                    //table->setItem(item->row(), item->column(), nullptr);
+                    //item->
+
+                }
+                else
+                {
+
+                    QColor color = button->palette().background().color();
+                    QString text = button->text();
+                    item->setBackgroundColor(color);
+                    item->setText(text);
+                    //qDebug()<<"UPDATE plan_zajec SET id_przydzialu="+ QString::number(przyciski_przydzialow->checkedId()) +" WHERE dzien="+ QString::number(id_dnia[item->column()]) +" AND od_godzina="+ QString::number(item->row()+godzina_poczatkowa) +" AND id_grupy="+ QString::number(id_grupy[ui->tabWidget->currentIndex()]);
+                    QList<QLabel*> etykieta = button->findChildren<QLabel*>();
+                    QLabel * label = etykieta.last();
+                    label->setText( QString::number(label->text().toInt()-1));
+                    zapytanie.exec("UPDATE przydzial_zajec SET do_zaplanowania = do_zaplanowania - 1 WHERE id="+ QString::number(przyciski_przydzialow->checkedId()));
+                }
             }
         }
-    }
-    else QMessageBox::warning(this, "Database error", "Database disconnected, check your internet connection");
+    //}
+    //else QMessageBox::warning(this, "Database error", "Database disconnected, check your internet connection");
 }
 
 void MainWindow::wczytaj_plan_zajec(int licznik)
@@ -389,7 +408,7 @@ int MainWindow::utworz_tabelki(){
         int ile_zjazdow = 0;
 
 
-        zapytanie.exec("SELECT data, id FROM zjazdy");
+        zapytanie.exec("SELECT data, id FROM zjazdy ORDER BY data");
 
         QStringList daty;
         while(zapytanie.next())
@@ -418,7 +437,8 @@ int MainWindow::utworz_tabelki(){
 
 void MainWindow::on_actionClear_database_triggered()
 {
-    if(sprawdz_polaczenie()) clearDatabase();
+    //if(sprawdz_polaczenie())
+    clearDatabase();
 }
 
 
@@ -524,12 +544,12 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
         QAbstractButton * button = przyciski_przydzialow->checkedButton();
         button->setChecked(false);
     }
-    qDebug()<<"Changed";
+    //qDebug()<<"Changed";
     for (int i = 1; i < id_przydzialu.size(); i++)
     {
-        qDebug()<<id_grupy[index];
-        qDebug()<<id_grupy_dla_przydzialu[i];
-        qDebug()<<" ";
+        //qDebug()<<id_grupy[index];
+        //qDebug()<<id_grupy_dla_przydzialu[i];
+        //qDebug()<<" ";
         if(id_grupy[index] == id_grupy_dla_przydzialu[i]) przyciski_przydzialow->button(id_przydzialu[i])->show();
         else przyciski_przydzialow->button(id_przydzialu[i])->hide();
     }

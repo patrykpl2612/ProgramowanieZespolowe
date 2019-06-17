@@ -20,6 +20,7 @@
 #include "qprogressbar.h"
 #include "qtimer.h"
 #include "qthread.h"
+#include "qtooltip.h"
 
 
 
