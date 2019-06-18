@@ -1,1 +1,1 @@
-# ProgramowanieZespolowe, wersja aktualna - SmartPlan v1.0
+# ProgramowanieZespolowe - Smart Plan v1.0
