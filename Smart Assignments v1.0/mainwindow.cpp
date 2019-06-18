@@ -85,17 +85,18 @@ void MainWindow::on_pushButton_2_clicked()
 
 bool MainWindow::polacz_z_baza()
 {
+  /*
   db.setHostName("localhost");
     db.setDatabaseName("plan_NSI");
     db.setUserName("postgres");
     db.setPassword("ketrab");
 
-/*
+*/
     db.setHostName("serwer1866993.home.pl");
     db.setDatabaseName("28568274_postgres");
     db.setUserName("28568274_postgres");
     db.setPassword("!QAZXSW@2wsxzaq1");
-*/
+
     if (db.open())
     {
         qDebug() << "Opened connection!";
